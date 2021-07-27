@@ -14,8 +14,8 @@ The *conclusions* from this first notebook are:
 
 # TODO list
 **Test network implementation**
--[] Implemnet a NFQ to test the behaviour on the same grid worlds
+- [] Implemnet a NFQ to test the behaviour on the same grid worlds
 **Infinite state and actions spaces**
--[] Implement a model of the system dynamics for a given state,action pair
--[] Implement a DQN network for learning the value function
--[] Eventually expand to DDPG to mimic humans behaviour
+- [] Implement a model of the system dynamics for a given state,action pair
+- [] Implement a DQN network for learning the value function
+- [] Eventually expand to DDPG to mimic humans behaviour
