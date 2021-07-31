@@ -4,7 +4,7 @@ ACTION_WEIGHT = 0.5 # effectuates momentum;
 
 class ForceField():
     
-    def __init__(self, start_pos = [.5, 1], goal = [.5, 0]):
+    def __init__(self, start_pos = (.5, 1), goal = (.5, 0)):
         """Initialize forcefield environment.
         """
         
@@ -12,11 +12,12 @@ class ForceField():
         self.start_pos = start_pos 
         self.goal = goal
         
-    def reset(self, pos=[.5, 1]):
+    def reset(self, pos=(.5, 1)):
         """Reset the environment to the starting position. The start position is (1, .5) on a 2D coordinate system). 
         """
         
-        self.state = pos + [0, 0] # State is 4 tuple (x_position, y_position, x_velocity, y_velocity).  
+        self.pos = pos
+        self.state = list(pos) + [0, 0] # State is 4 tuple (x_position, y_position, x_velocity, y_velocity).  
         self.next_state = None
         self.reward = 0
         self.done.= 0
@@ -27,15 +28,27 @@ class ForceField():
         """Agent acts in the environment and gets the resulting next state and reward obtained.
         """
         
-        carried_action = action[0] 
+        # Calculate new actions by weighting with old actions: 
+        old_action = self.state[2:]
+        x_vel, y_vel = get_carried_action(old_action, action)
+
+        # Calculate new positions by adding new velocities to position 
+        x_pos = self.state[0] + action[0]
+        y_pos = self.state[1] + action[1]
         
+        # Update position and state
+        self.pos = (x_pos, y_pos)
+        self.next_state = [x_pos, y_pos, x_vel, y_vel]
         
-        x_pos = self.state[0] + carried_action[0]
-        y_pos = self.state[1] + carried_action[1] 
+        # Check if finished 
+        if self.pos == self.goal:
+            reward = 0.1
+            done = True 
+        else:
+            reward = -0.1
+            done = False 
         
-        
-        pass
-        # return env_info.next_state, env_info.reward, env_info.done
+        return self, reward, done
                            
 def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
         """Get new action based on action from previous timestep. 
