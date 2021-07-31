@@ -38,7 +38,7 @@ class ForceField():
         
         # Update position and state
         self.pos = (x_pos, y_pos)
-        self.next_state = [x_pos, y_pos, x_vel, y_vel]
+        self.state = [x_pos, y_pos, x_vel, y_vel]
         
         # Check if finished 
         if self.pos == self.goal:
