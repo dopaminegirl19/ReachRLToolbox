@@ -1,5 +1,6 @@
 import numpy as np
 
+## HYPERPARAMETERS
 ACTION_WEIGHT = 0.5 # effectuates momentum; 
 
 class ForceField():
