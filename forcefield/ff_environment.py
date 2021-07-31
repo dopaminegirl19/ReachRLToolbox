@@ -24,7 +24,7 @@ class ForceField():
         
         return self 
         
-    def act(self, action):
+    def step(self, action):
         """Agent acts in the environment and gets the resulting next state and reward obtained.
         """
         
