@@ -1,8 +1,10 @@
 import numpy as np
 
+ACTION_WEIGHT = 0.5 # effectuates momentum; 
+
 class ForceField():
     
-    def __init__(self, start_pos = (.5, 1), goal = (.5, 0)):
+    def __init__(self, start_pos = [.5, 1], goal = [.5, 0]):
         """Initialize forcefield environment.
         """
         
@@ -10,18 +12,45 @@ class ForceField():
         self.start_pos = start_pos 
         self.goal = goal
         
-    def reset(self, pos=(.5, 1)):
+    def reset(self, pos=[.5, 1]):
         """Reset the environment to the starting position. The start position is (1, .5) on a 2D coordinate system). 
         """
         
-        self.state = pos + (0, 0) # State is 4 tuple (x_position, y_position, x_velocity, y_velocity).  
+        self.state = pos + [0, 0] # State is 4 tuple (x_position, y_position, x_velocity, y_velocity).  
+        self.next_state = None
+        self.reward = 0
+        self.done.= 0
+        
         return self 
         
     def act(self, action):
         """Agent acts in the environment and gets the resulting next state and reward obtained.
         """
         
+        carried_action = action[0] 
+        
+        
+        x_pos = self.state[0] + carried_action[0]
+        y_pos = self.state[1] + carried_action[1] 
+        
         
         pass
         # return env_info.next_state, env_info.reward, env_info.done
+                           
+def get_carried_action(state, action, act_weight = ACTION_WEIGHT):
+        """Get new action based on action from previous timestep. 
+        Carried action = (action_weight * old_action) + new_action 
+        Params
+        ======
+        state: list length 4 [_, _, old_x_velocity, old_y_velocity]
+        action: list length 2 [new_x_velocity, new_y_velocity]
+        act_weight: weight applied to old velocity 
+        """
+        
+        new_x_velocity = state[2] * act_weight + action[0]
+        new_y_velocity = state[3] * act_weight + action[1]
+        
+        return new_x_velocity, new_y_velocity 
+                           
+                           
         
