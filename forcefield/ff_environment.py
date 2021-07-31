@@ -37,18 +37,18 @@ class ForceField():
         pass
         # return env_info.next_state, env_info.reward, env_info.done
                            
-def get_carried_action(state, action, act_weight = ACTION_WEIGHT):
+def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
         """Get new action based on action from previous timestep. 
         Carried action = (action_weight * old_action) + new_action 
         Params
         ======
-        state: list length 4 [_, _, old_x_velocity, old_y_velocity]
+        old_action: list length 2 [old_x_velocity, old_y_velocity]
         action: list length 2 [new_x_velocity, new_y_velocity]
         act_weight: weight applied to old velocity 
         """
         
-        new_x_velocity = state[2] * act_weight + action[0]
-        new_y_velocity = state[3] * act_weight + action[1]
+        new_x_velocity = old_action[0] * act_weight + action[0]
+        new_y_velocity = old_action[1] * act_weight + action[1]
         
         return new_x_velocity, new_y_velocity 
                            
