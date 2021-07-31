@@ -28,13 +28,13 @@ class ForceField():
         """Agent acts in the environment and gets the resulting next state and reward obtained.
         """
         
-        # Calculate new actions by weighting with old actions: 
+        # Calculate new velocities by weighting with old actions: 
         old_action = self.state[2:]
         x_vel, y_vel = get_carried_action(old_action, action)
 
         # Calculate new positions by adding new velocities to position 
-        x_pos = self.state[0] + action[0]
-        y_pos = self.state[1] + action[1]
+        x_pos = self.state[0] + x_vel
+        y_pos = self.state[1] + y_vel
         
         # Update position and state
         self.pos = (x_pos, y_pos)
