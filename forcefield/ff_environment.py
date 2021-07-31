@@ -20,7 +20,7 @@ class ForceField():
         self.state = list(pos) + [0, 0] # State is 4 tuple (x_position, y_position, x_velocity, y_velocity).  
         self.next_state = None
         self.reward = 0
-        self.done.= 0
+        self.done = 0
         
         return self 
         
@@ -42,13 +42,13 @@ class ForceField():
         
         # Check if finished 
         if self.pos == self.goal:
-            reward = 0.1
-            done = True 
+            self.reward = 0.1
+            self.done = True 
         else:
-            reward = -0.1
-            done = False 
+            self.reward = -0.1
+            self.done = False 
         
-        return self, reward, done
+        return self
                            
 def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
         """Get new action based on action from previous timestep. 
