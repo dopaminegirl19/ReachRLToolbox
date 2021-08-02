@@ -3,6 +3,7 @@ import numpy as np
 ## HYPERPARAMETERS
 ACTION_WEIGHT = 0.5 # effectuates momentum; 
 TIME_LIMIT = 30     # max time steps per trial 
+COST_PARAM = 0.2    # penalty to action 
 
 class ForceField():
     
@@ -30,7 +31,7 @@ class ForceField():
         
         return self 
         
-    def step(self, action, time_limit=TIME_LIMIT):
+    def step(self, action, act_weight = ACTION_WEIGHT, cost = COST_PARAM):
         """Agent acts in the environment and gets the resulting next state and reward obtained.
         """
         
@@ -52,13 +53,13 @@ class ForceField():
         # Check if finished 
         if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
             if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]:     # reached goal in y dimension
-                self.reward = 1 - np.linalg.norm(action, 2)
+                self.reward = 1 - np.linalg.norm(action, 2) * cost
                 self.done = True 
         elif self.time >= TIME_LIMIT:     # reached time limit
-            self.reward = 0 - np.linalg.norm(action, 2)
+            self.reward = 0 - np.linalg.norm(action, 2) * cost
             self.done = True 
         else:                             # not finished 
-            self.reward = 0 - np.linalg.norm(action, 2)
+            self.reward = 0 - np.linalg.norm(action, 2) * cost
             self.done = False 
         
         return self 
