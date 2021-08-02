@@ -18,7 +18,7 @@ class ForceField():
         """
         
         self.pos = pos
-        self.state = list(pos) + [0, 0] # State is 4 tuple (x_position, y_position, x_velocity, y_velocity).  
+        self.state = np.array(list(pos) + [0, 0]) # State is [x_position, y_position, x_velocity, y_velocity].  
         self.next_state = None
         self.reward = 0
         self.done = 0
@@ -39,7 +39,7 @@ class ForceField():
         
         # Update position and state
         self.pos = (x_pos, y_pos)
-        self.state = [x_pos, y_pos, x_vel, y_vel]
+        self.state = np.array([x_pos, y_pos, x_vel, y_vel])
         
         # Check if finished 
         if self.pos == self.goal:

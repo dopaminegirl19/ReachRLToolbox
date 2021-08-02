@@ -60,19 +60,19 @@ class Agent():
             experiences = self.memory.sample()
             self.learn(experiences, GAMMA)
 
-    def act(self, states, add_noise=True):
+    def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
-        states = torch.from_numpy(states).float().to(device)
+        state = torch.from_numpy(state).float().to(device)
         self.actor_local.eval()
         
         with torch.no_grad():
-            actions = self.actor_local(states).cpu().data.numpy()
+            action = self.actor_local(state).cpu().data.numpy()
                 
         self.actor_local.train()
         if add_noise:
             noise_sample = self.noise.sample()
-            actions += noise_sample
-        return np.clip(actions, -1, 1)
+            action += noise_sample
+        return np.clip(action, -1, 1)
 
     def reset(self):
         self.noise.reset()
