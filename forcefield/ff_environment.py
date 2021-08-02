@@ -46,7 +46,7 @@ class ForceField():
             self.reward = 0.1
             self.done = True 
         else:
-            self.reward = -0.1
+            self.reward = 0
             self.done = False 
         
         return self
