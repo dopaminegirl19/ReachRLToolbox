@@ -6,13 +6,16 @@ TIME_LIMIT = 30     # max time steps per trial
 
 class ForceField():
     
-    def __init__(self, start_pos = (.5, 1), goal = (.5, 0)):
+    def __init__(self, start_pos = (.5, 1), goal_top = 0, goal_left = .3, goal_right = .7, goal_bottom = -1):
         """Initialize forcefield environment.
         """
         
         self.action_size = 2 # (x_velocity, y_velocity)
         self.start_pos = start_pos 
-        self.goal = goal
+        self.goal_top = goal_top
+        self.goal_left = goal_left
+        self.goal_right = goal_right
+        self.goal_bottom = goal_bottom
         
     def reset(self, pos=(.5, 1)):
         """Reset the environment to the starting position. The start position is (1, .5) on a 2D coordinate system). 
@@ -47,14 +50,15 @@ class ForceField():
         self.state = np.array([x_pos, y_pos, x_vel, y_vel])
         
         # Check if finished 
-        if self.pos == self.goal:         # reached goal
-            self.reward = 0.1
-            self.done = True 
+        if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
+            if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]:     # reached goal in y dimension
+                self.reward = 1 - np.linalg.norm(action, 2)
+                self.done = True 
         elif self.time >= TIME_LIMIT:     # reached time limit
-            self.reward = 0
+            self.reward = 0 - np.linalg.norm(action, 2)
             self.done = True 
         else:                             # not finished 
-            self.reward = 0
+            self.reward = 0 - np.linalg.norm(action, 2)
             self.done = False 
         
         return self
