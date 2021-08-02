@@ -52,7 +52,7 @@ class Agent():
         # Replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
     
-    def step(self, timestep, state, action, reward, next_state, done):
+    def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         self.memory.add(state, action, reward, next_state, done)
         
@@ -134,7 +134,7 @@ class Agent():
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
 
-    def __init__(self, seed, mu=0., theta=0.15, sigma=0.2):
+    def __init__(self, seed, mu=0., theta=0.015, sigma=0.02):
         """Initialize parameters and noise process."""
         self.mu = mu 
         self.theta = theta

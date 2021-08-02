@@ -2,6 +2,7 @@ import numpy as np
 
 ## HYPERPARAMETERS
 ACTION_WEIGHT = 0.5 # effectuates momentum; 
+TIME_LIMIT = 30     # max time steps per trial 
 
 class ForceField():
     
@@ -22,12 +23,16 @@ class ForceField():
         self.next_state = None
         self.reward = 0
         self.done = 0
+        self.time = 0
         
         return self 
         
-    def step(self, action):
+    def step(self, action, time_limit=TIME_LIMIT):
         """Agent acts in the environment and gets the resulting next state and reward obtained.
         """
+        
+        # Add time:
+        self.time += 1
         
         # Calculate new velocities by weighting with old actions: 
         old_action = self.state[2:]
@@ -42,10 +47,13 @@ class ForceField():
         self.state = np.array([x_pos, y_pos, x_vel, y_vel])
         
         # Check if finished 
-        if self.pos == self.goal:
+        if self.pos == self.goal:         # reached goal
             self.reward = 0.1
             self.done = True 
-        else:
+        elif self.time >= TIME_LIMIT:     # reached time limit
+            self.reward = 0
+            self.done = True 
+        else:                             # not finished 
             self.reward = 0
             self.done = False 
         
