@@ -61,7 +61,7 @@ class ForceField():
             self.reward = 0 - np.linalg.norm(action, 2)
             self.done = False 
         
-        return self
+        return self 
                            
 def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
         """Get new action based on action from previous timestep. 
