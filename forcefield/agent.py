@@ -56,7 +56,7 @@ class Agent():
         """Save experience in replay memory, and use random sample from buffer to learn."""
         self.memory.add(state, action, reward, next_state, done)
         
-        if len(self.memory) > BATCH_SIZE:
+        if len(self.memory) > BATCH_SIZE and done:
             experiences = self.memory.sample()
             self.learn(experiences, GAMMA)
 
