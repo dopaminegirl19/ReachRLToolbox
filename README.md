@@ -12,12 +12,10 @@ The *conclusions* from this first notebook are:
 * All these experimental paradigms can be modelled using RL agent in a simple way
 * A lookout table with a finite set of states and actions is not enough
 
-# TODO list
-**Test network implementation**
-- [ ] Implemnet a NFQ to test the behaviour on the same grid worlds
-**Infinite state and actions spaces**
-- [ ] Implement a model of the system dynamics for a given state,action pair
-- [ ] Implement a DQN network for learning the value function
-- [ ] Eventually expand to DDPG to mimic humans behaviour
+**OFC FF** is a notebook that implements the optimal feedback control model for reaching movements and investigate what would be the optimal behaviour in presence of force field (here a constant lateral force field is considered). 
 
-**Other files are not relevant yet**
+This demonstrates the following result:
+
+* The optimal trajectory that the agent reaches at the end of motor learning (ie. asymptotycaly when they have learned the environment perfectly) is not a straight line
+* The optimal trajectory depends on the force field intensity
+* Metrics such as the peak lateral deviation is not enough to investigate motor learning as it will consider that the optimal trajectory is the straight line path
