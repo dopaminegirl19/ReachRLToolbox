@@ -2,8 +2,8 @@ import numpy as np
 
 ## HYPERPARAMETERS
 ACTION_WEIGHT = 0.5 # effectuates momentum; 
-TIME_LIMIT = 30     # max time steps per trial 
-COST_PARAM = 0.2    # penalty to action 
+TIME_LIMIT = 50     # max time steps per trial 
+COST_PARAM = 0.2 # penalty to action 
 
 class ForceField():
     
@@ -55,9 +55,11 @@ class ForceField():
             if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]:     # reached goal in y dimension
                 self.reward = 1 - np.linalg.norm(action, 2) * cost
                 self.done = True 
+                
         elif self.time >= TIME_LIMIT:     # reached time limit
             self.reward = 0 - np.linalg.norm(action, 2) * cost
             self.done = True 
+            
         else:                             # not finished 
             self.reward = 0 - np.linalg.norm(action, 2) * cost
             self.done = False 

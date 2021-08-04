@@ -12,7 +12,7 @@ def hidden_init(layer):
 class Actor(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, seed, fc1_units=64, fc2_units=32):
+    def __init__(self, state_size, action_size, seed, fc1_units=32, fc2_units=16):
         """Initialize parameters and build model.
         Params
         ======
@@ -36,15 +36,15 @@ class Actor(nn.Module):
 
     def forward(self, state):
         """Build an actor (policy) network that maps states -> actions."""
-        x = F.relu(self.fc1(state))
-        x = F.relu(self.fc2(x))
+        x = F.tanh(self.fc1(state))
+        x = F.tanh(self.fc2(x))
         return F.tanh(self.fc3(x))
 
 
 class Critic(nn.Module):
     """Critic (Value) Model."""
 
-    def __init__(self, state_size, action_size, seed, fc1_units=64, fc2_units=32):
+    def __init__(self, state_size, action_size, seed, fc1_units=32, fc2_units=16):
         """Initialize parameters and build model.
         Params
         ======
@@ -68,8 +68,8 @@ class Critic(nn.Module):
 
     def forward(self, state, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        xs = F.relu(self.fc1(state))
+        xs = F.tanh(self.fc1(state))
         x = torch.cat((xs, action), dim=1)
-        x = F.relu(self.fc2(x))
+        x = F.tanh(self.fc2(x))
         return self.fc3(x)
 

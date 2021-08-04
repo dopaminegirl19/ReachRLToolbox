@@ -13,9 +13,11 @@ BUFFER_SIZE = int(1e4)  # replay buffer size
 BATCH_SIZE = 128        # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
-LR_ACTOR = 1e-3         # learning rate of the actor 
-LR_CRITIC = 4e-3        # learning rate of the critic
+LR_ACTOR = 1e-5         # learning rate of the actor 
+LR_CRITIC = 4e-5        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
+NOISE_WEIGHT_DECAY = 0.99
+NOISE_WEIGHT_START = 1
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -23,7 +25,8 @@ class Agent():
     """Interacts with and learns from the environment."""
     
     
-    def __init__(self, state_size, action_size, random_seed):
+    def __init__(self, state_size, action_size, random_seed, noise_weight = NOISE_WEIGHT_START, 
+                 noise_weight_decay = NOISE_WEIGHT_DECAY):
         """Initialize an Agent object.
         
         Params
@@ -35,6 +38,8 @@ class Agent():
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
+        self.noise_w = noise_weight
+        self.noise_wd = noise_weight_decay
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
@@ -71,6 +76,8 @@ class Agent():
         self.actor_local.train()
         if add_noise:
             noise_sample = self.noise.sample()
+            noise_sample = np.random.normal(scale=1) * self.noise_w
+            self.noise_w = self.noise_w * self.noise_wd
             action += noise_sample
         return np.clip(action, -1, 1)
 
@@ -134,7 +141,7 @@ class Agent():
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
 
-    def __init__(self, seed, mu=0., theta=0.015, sigma=0.02):
+    def __init__(self, seed, mu=0., theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
         self.mu = mu 
         self.theta = theta
