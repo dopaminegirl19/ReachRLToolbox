@@ -7,16 +7,30 @@ COST_PARAM = 0.2 # penalty to action
 
 class ForceField():
     
-    def __init__(self, start_pos = (.5, 1), goal_top = 0, goal_left = .3, goal_right = .7, goal_bottom = -1):
+    def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), g_br = (.9, -.8), space_padding = 5):
         """Initialize forcefield environment.
+        Params
+        ======
+        start_pos: tuple (x, y) coordinates of starting position.
+        goal_tl: tuple(x, y) coordinates of top left corner of goal box.
+        goal_br: tuple(x, y) coordinates of bottom right corner of goal box.
+        space_padding: float space from start_pos in each direction delineating allowed movement.
         """
         
         self.action_size = 2 # (x_velocity, y_velocity)
+        
+        # goal box
         self.start_pos = start_pos 
-        self.goal_top = goal_top
-        self.goal_left = goal_left
-        self.goal_right = goal_right
-        self.goal_bottom = goal_bottom
+        self.goal_left = goal_tl[0]
+        self.goal_top = goal_tl[1]
+        self.goal_right = goal_br[0]
+        self.goal_bottom = goal_br[1]
+        
+        # workspace boundaries
+        self.max_top = start_pos[1] + space_padding
+        self.max_left = start_pos[0] - space_padding
+        self.max_bottom = start_pos[1] - space_padding
+        self.max_right = start_pos[0] + space_padding
         
     def reset(self, pos=(.5, 1)):
         """Reset the environment to the starting position. The start position is (1, .5) on a 2D coordinate system). 
@@ -55,6 +69,11 @@ class ForceField():
             if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]:     # reached goal in y dimension
                 self.reward = 1 - np.linalg.norm(action, 2) * cost
                 self.done = True 
+                
+        elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] 
+        or self.max_right <= self.pos[1]:
+            self.reward = -100 
+            self.done = True 
                 
         elif self.time >= TIME_LIMIT:     # reached time limit
             self.reward = 0 - np.linalg.norm(action, 2) * cost
