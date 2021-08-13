@@ -33,7 +33,7 @@ class Trajectories():
     def add_episode(self, positions):
         self.trajectories.append(positions)
         
-    def plot(self, idx, color = 'magma', scale=True, boxcol = 'r', boxalpha = 0.1):
+    def plot(self, idx, legend = False, color = 'magma', scale=True, boxcol = 'r', boxalpha = 0.1):
         """Plot a select number of indices.
         Params
         ======
@@ -60,9 +60,18 @@ class Trajectories():
         ax.set_ylim(ylims[0], ylims[1])
         
         for i, pt in enumerate(self.trajectories[idx]):
-            ax.plot(pt[0], pt[1], 'o', color=cmap.colors[i])
+            # ax.plot(pt[0], pt[1], 'o', color=cmap.colors[i])
+            if legend and i == 0:
+                ax.plot(pt[0], pt[1], 'o', color=cmap.colors[i], label='start')
+            elif legend and i == len(self.trajectories[idx])-1:
+                ax.plot(pt[0], pt[1], 'o', color=cmap.colors[i], label='end')
+            else:
+                ax.plot(pt[0], pt[1], 'o', color=cmap.colors[i])
 
         ax.add_patch(goal_patch)
+        
+        if legend:
+            ax.legend()
         
         return fig, ax
         
