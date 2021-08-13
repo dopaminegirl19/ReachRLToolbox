@@ -7,7 +7,7 @@ COST_PARAM = 0.2 # penalty to action
 
 class ForceField():
     
-    def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), goal_br = (.9, -.8), space_padding = 5):
+    def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), goal_br = (.9, -.8), space_padding = 5, max_len=TIME_LIMIT):
         """Initialize forcefield environment.
         Params
         ======
@@ -18,6 +18,7 @@ class ForceField():
         """
         
         self.action_size = 2 # (x_velocity, y_velocity)
+        self.max_len = max_len
         
         # goal box
         self.start_pos = start_pos 
@@ -72,10 +73,10 @@ class ForceField():
                 
         elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] \
         or self.max_right <= self.pos[1]:
-            self.reward = -100 
+            self.reward = -1 - np.linalg.norm(action, 2) * cost
             self.done = True 
                 
-        elif self.time >= TIME_LIMIT:     # reached time limit
+        elif self.time >= self.max_len:     # reached time limit
             self.reward = 0 - np.linalg.norm(action, 2) * cost
             self.done = True 
             

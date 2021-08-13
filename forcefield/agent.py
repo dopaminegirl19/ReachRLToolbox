@@ -78,7 +78,7 @@ class Agent():
             noise_sample = np.random.normal(scale=1) * self.noise_w
             self.noise_w = self.noise_w * self.noise_wd
             action += noise_sample
-        return np.clip(action, -1, 1)
+        return np.clip(action, -.4, .4)
 
     def reset(self):
         #self.noise.reset()
