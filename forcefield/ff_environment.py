@@ -33,6 +33,24 @@ class ForceField():
         self.max_bottom = start_pos[1] - space_padding
         self.max_right = start_pos[0] + space_padding
         
+        # forcefields
+        self.ff_on = False # no forcefield as default 
+        
+        
+    def add_forcefield(self, top, bottom, force):
+        """Add a forcefield. Default is to apply forcefield from a limit in the y dimension.
+        Params
+        ======
+        top: float, y-coord below which (on 2d grid) ff is applied. 
+        bottom: float, y-coord above which (on 2d grid) ff is applied. 
+        force: (x, y) tuple of forces applied in each direction. 
+        """
+        
+        self.ff_on = True
+        self.ff_top = top
+        self.ff_bottom = bottom
+        self.ff_force = force
+        
     def reset(self, pos=(.5, 1)):
         """Reset the environment to the starting position. The start position is (1, .5) on a 2D coordinate system). 
         """
@@ -56,6 +74,11 @@ class ForceField():
         # Calculate new velocities by weighting with old actions: 
         old_action = self.state[2:]
         x_vel, y_vel = get_carried_action(old_action, action)
+        
+        # Apply forcefield:
+        if self.ff_on:
+            if (self.state[1] + y_vel) < self.ff_top and (self.state[1] + y_vel) > self.ff_bottom:
+                x_vel = x_vel + self.ff_force 
 
         # Calculate new positions by adding new velocities to position 
         x_pos = self.state[0] + x_vel
@@ -68,12 +91,12 @@ class ForceField():
         # Check if finished 
         if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
             if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]:     # reached goal in y dimension
-                self.reward = 1 - np.linalg.norm(action, 2) * cost
+                self.reward = 5 - np.linalg.norm(action, 2) * cost
                 self.done = True 
                 
         elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] \
-        or self.max_right <= self.pos[1]:
-            self.reward = -1 - np.linalg.norm(action, 2) * cost
+        or self.max_right <= self.pos[1]: # exited workspace
+            self.reward = -5 - np.linalg.norm(action, 2) * cost
             self.done = True 
                 
         elif self.time >= self.max_len:     # reached time limit
@@ -99,7 +122,6 @@ def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
         new_x_velocity = old_action[0] * act_weight + action[0]
         new_y_velocity = old_action[1] * act_weight + action[1]
         
-        return new_x_velocity, new_y_velocity 
-                           
+        return new_x_velocity, new_y_velocity                            
                            
         
