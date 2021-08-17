@@ -3,7 +3,7 @@ import numpy as np
 ## HYPERPARAMETERS
 ACTION_WEIGHT = 0.5 # effectuates momentum; 
 TIME_LIMIT = 50     # max time steps per trial 
-COST_PARAM = 0.2 # penalty to action 
+COST_PARAM = 0.002 # penalty to action - HAD TO CHANGE THAT OTHERWISE NO MOVEMENT
 
 class ForceField():
     
@@ -34,7 +34,9 @@ class ForceField():
         self.max_right = start_pos[0] + space_padding
         
         # forcefields
-        self.force = 0
+        self.ff_force = 0
+        self.ff_top = 5.5 # it should cover the whole workspace
+        self.ff_bottom = -4.5
         
         
     def add_forcefield(self, force):
@@ -43,7 +45,7 @@ class ForceField():
         ======
         force: (x, y) tuple of forces applied in each direction. 
         """
-        
+        # THIS FUNCTION IS NOT USED YET
         self.force = force
         
     def reset(self, pos=(.5, 1)):
@@ -51,7 +53,7 @@ class ForceField():
         """
         
         self.pos = pos
-        self.state = np.array(list(pos) + [0, 0]) # State is [x_position, y_position, x_velocity, y_velocity].  
+        self.state = np.array(list(pos) + [0, 0, 0, 0]) # State is [x_position, y_position, x_velocity, y_velocity].
         self.next_state = None
         self.reward = 0
         self.done = 0
@@ -61,33 +63,38 @@ class ForceField():
         
     def step(self, action, act_weight = ACTION_WEIGHT, cost = COST_PARAM):
         """Agent acts in the environment and gets the resulting next state and reward obtained.
+
+        The system dynamics comes from Nashed et al. 2012
         """
         
-        # Add time:
+        # Add time (in time steps of 10 ms):
         self.time += 1
-        
-        # Calculate new velocities by weighting with old actions: 
-        old_action = self.state[2:]
-        x_vel, y_vel = get_carried_action(old_action, action)
+        dt, kv, tau = 0.01, 1, 0.04
+
+        # Calculate new state using the Newtonian dynamics
+        x_pos = self.state[0] + self.state[2]*dt
+        y_pos = self.state[1] + self.state[3]*dt
+        x_vel = (1-kv*dt) * self.state[2] + dt * self.state[4]
+        y_vel = (1-kv*dt) * self.state[3] + dt * self.state[5]
+        x_force = (1-dt/tau) * self.state[4] + dt/tau * action[0]
+        y_force = (1-dt/tau) * self.state[5] + dt/tau * action[1]
         
         # Apply forcefield:
-        if self.ff_on:
-            if (self.state[1] + y_vel) < self.ff_top and (self.state[1] + y_vel) > self.ff_bottom:
-                x_vel = x_vel + self.ff_force 
 
-        # Calculate new positions by adding new velocities to position 
-        x_pos = self.state[0] + x_vel
-        y_pos = self.state[1] + y_vel
+        if (self.state[1] + y_vel*dt) < self.ff_top and (self.state[1] + y_vel*dt) > self.ff_bottom:
+            x_vel = x_vel + self.ff_force*dt
+
+
         
         # Update position and state
         self.pos = (x_pos, y_pos)
-        self.state = np.array([x_pos, y_pos, x_vel, y_vel])
+        self.state = np.array([x_pos, y_pos, x_vel, y_vel, x_force, y_force])
         
         # Check if finished 
         if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
-            if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]:     # reached goal in y dimension
-                self.reward = 5 - np.linalg.norm(action, 2) * cost
-                self.done = True 
+            if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]: # reached goal in y dimension
+                self.reward = 100 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
+                self.done = True
                 
         elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] \
         or self.max_right <= self.pos[1]: # exited workspace
@@ -95,7 +102,7 @@ class ForceField():
             self.done = True 
                 
         elif self.time >= self.max_len:     # reached time limit
-            self.reward = 0 - np.linalg.norm(action, 2) * cost
+            self.reward = -10 - np.linalg.norm(action, 2) * cost
             self.done = True 
             
         else:                             # not finished 
@@ -113,7 +120,7 @@ def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
         action: list length 2 [new_x_velocity, new_y_velocity]
         act_weight: weight applied to old velocity 
         """
-        
+        # NOT USED ANYMORE - CAN BE REMOVED
         new_x_velocity = old_action[0] * act_weight + action[0]
         new_y_velocity = old_action[1] * act_weight + action[1]
         
