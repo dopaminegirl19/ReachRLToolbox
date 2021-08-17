@@ -80,7 +80,7 @@ def ddpg(n_episodes=3000, max_t=1000, print_every=1000):
 
     return scores, trajectories, actions_tracker
 
-
+#plotting the value of reward/episode (left) and the converged (or last) trajectory (right)
 scores, trajectories, actions_tracker = ddpg()
 start_pos = (.5, 1)
 padding=5
@@ -108,7 +108,7 @@ axs[1].add_patch(goal_patch)
 plt.show()
 
 
-
+# Representing the different state variables (positions and velocities)
 time_vec = np.zeros(count)
 state_vec = np.zeros((state_size,count))
 env_model = env.reset()
