@@ -98,12 +98,12 @@ class Workspace():
         # Check if finished 
         if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
             if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]: # reached goal in y dimension
-                self.reward = 100 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
+                self.reward = 10 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
                 self.done = True
                 
         elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] \
         or self.max_right <= self.pos[1]: # exited workspace
-            self.reward = -5 - np.linalg.norm(action, 2) * cost
+            self.reward = -10 - np.linalg.norm(action, 2) * cost
             self.done = True 
                 
         elif self.time >= self.max_len:     # reached time limit
