@@ -24,7 +24,7 @@ models
 To do: decide how OFC work fits in to directory... 
 
 
-### Roadmap to new behaviors ###
+## Guides for new behaviors ##
 
 Each behavior should be documented in a .ipynb notebook. A behavior corresponds to an environment, and all environments are buildable from ff_environment.py. 
 Therefore, to develop a new behavior:
