@@ -5,7 +5,7 @@ The origin branch repo should have this structure:
 ```
 README.md
 Roadmap.md
-ForceField.iynb
+ForceField.ipynb
 BehaviorName02.ipynb
 BehaviorName03.ipynb
 ff_environment.py
