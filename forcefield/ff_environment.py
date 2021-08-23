@@ -34,19 +34,23 @@ class ForceField():
         self.max_right = start_pos[0] + space_padding
         
         # forcefields
-        self.ff_force = 0
-        self.ff_top = 5.5 # it should cover the whole workspace
-        self.ff_bottom = -4.5
+        self.ff_force = (0, 0)
+        self.ff_top = self.max_top # it should cover the whole workspace
+        self.ff_bottom = self.max_bottom
         
         
-    def add_forcefield(self, force):
+    def add_forcefield(self, force, top=None, bottom=None):
         """Add a forcefield. Default is to apply forcefield from a limit in the y dimension.
         Params
         ======
         force: (x, y) tuple of forces applied in each direction. 
         """
-        # THIS FUNCTION IS NOT USED YET
-        self.force = force
+        # THIS FUNCTION IS NOT USED YET ?
+        self.ff_force = force
+        if top is not None:
+            self.ff_top = top
+        if bottom is not None:
+            self.ff_bottom = bottom
         
     def reset(self, pos=(.5, 1)):
         """Reset the environment to the starting position. The start position is (1, .5) on a 2D coordinate system). 
@@ -82,7 +86,8 @@ class ForceField():
         # Apply forcefield:
 
         if (self.state[1] + y_vel*dt) < self.ff_top and (self.state[1] + y_vel*dt) > self.ff_bottom:
-            x_vel = x_vel + self.ff_force*dt
+            x_vel = x_vel + self.ff_force[0]*dt
+            y_vel = y_vel + self.ff_force[1]*dt
 
 
         
