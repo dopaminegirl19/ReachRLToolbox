@@ -11,10 +11,10 @@ BehaviorName03.ipynb
 ff_environment.py
 agents
 └───ddpg-32-16
-│   │   learned-behavior-01.pth
-│   │   learned-behavior-02.pth
+│   │   learned-ForceField.pth
+│   │   learned-BehaviorName02.pth
 └───ddpg-64-32
-│   │   learned-behavior-03.pth
+│   │   learned-BehaviorName03.pth
 models
 │   1-layer
 │   2-layer
