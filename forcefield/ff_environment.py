@@ -5,7 +5,7 @@ ACTION_WEIGHT = 0.5 # effectuates momentum;
 TIME_LIMIT = 50     # max time steps per trial 
 COST_PARAM = 0.002 # penalty to action - HAD TO CHANGE THAT OTHERWISE NO MOVEMENT
 
-class ForceField():
+class Workspace():
     
     def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), goal_br = (.9, -.8), space_padding = 5, max_len=TIME_LIMIT):
         """Initialize forcefield environment.
@@ -115,6 +115,9 @@ class ForceField():
             self.done = False 
         
         return self 
+    
+class MultiTarget(Workspace):
+    pass
                            
 def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
         """Get new action based on action from previous timestep. 
