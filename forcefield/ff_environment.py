@@ -1,5 +1,5 @@
 import numpy as np
-
+import torch
 ## HYPERPARAMETERS
 ACTION_WEIGHT = 0.5 # effectuates momentum; 
 TIME_LIMIT = 50     # max time steps per trial 
@@ -40,13 +40,12 @@ class Workspace():
         
         
     def add_forcefield(self, force, top=None, bottom=None):
-        """Add a forcefield. Default is to apply forcefield throughout the entire workspace. 
+        """Add a forcefield. Default is to apply forcefield from a limit in the y dimension.
         Params
         ======
         force: (x, y) tuple of forces applied in each direction. 
-        top: float, upper limit of region where forcefield is applied (y axis dim)
-        bottom: as for top, but lower limit. 
         """
+        # THIS FUNCTION IS NOT USED YET ?
         self.ff_force = force
         if top is not None:
             self.ff_top = top
@@ -63,20 +62,12 @@ class Workspace():
         self.reward = 0
         self.done = 0
         self.time = 0
-        self.target_counter = 0
         
         return self 
         
-    def step(self, action, cost = COST_PARAM, t_stay = 1):
+    def step(self, action, act_weight = ACTION_WEIGHT, cost = COST_PARAM):
         """Agent acts in the environment and gets the resulting next state and reward obtained.
-
         The system dynamics comes from Nashed et al. 2012
-        Params
-        ======
-        action: array-type length 2, acceleration in x and y dimensions
-        cost: float, cost attributed to action 
-        t_stay: int, minimum number of timesteps that the agent must stay in the target box before receiving reward. \
-        Default is 1 and the agent wins as soon as it enters the box. 
         """
         
         # Add time (in time steps of 10 ms):
@@ -88,25 +79,26 @@ class Workspace():
         y_pos = self.state[1] + self.state[3]*dt
         x_vel = (1-kv*dt) * self.state[2] + dt * self.state[4]
         y_vel = (1-kv*dt) * self.state[3] + dt * self.state[5]
-        x_force = (1-dt/tau) * self.state[4] + dt/tau * action[0]
-        y_force = (1-dt/tau) * self.state[5] + dt/tau * action[1]
+        x_force = (1-dt/tau) * self.state[4] + dt/tau * action[0] + np.random.normal(0., 0.01)# noise level similar to OFC
+        y_force = (1-dt/tau) * self.state[5] + dt/tau * action[1] + np.random.normal(0., 0.01)
         
         # Apply forcefield:
+
         if (self.state[1] + y_vel*dt) < self.ff_top and (self.state[1] + y_vel*dt) > self.ff_bottom:
             x_vel = x_vel + self.ff_force[0]*dt
             y_vel = y_vel + self.ff_force[1]*dt
 
+
+        
         # Update position and state
         self.pos = (x_pos, y_pos)
         self.state = np.array([x_pos, y_pos, x_vel, y_vel, x_force, y_force])
         
         # Check if finished 
         if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
-            if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]:     # reached goal in y dimension
-                self.target_counter += 1
-                if self.target_counter >= t_stay:
-                    self.reward = 20 - np.linalg.norm(action, 2) * cost              # INCREASE FOR SUCCESSFUL TRIALS (>=20)
-                    self.done = True
+            if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]: # reached goal in y dimension
+                self.reward = 20 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
+                self.done = True
                 
         elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] \
         or self.max_right <= self.pos[1]: # exited workspace
@@ -139,6 +131,6 @@ def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
         new_x_velocity = old_action[0] * act_weight + action[0]
         new_y_velocity = old_action[1] * act_weight + action[1]
         
-        return new_x_velocity, new_y_velocity                            
+        return new_x_velocity, new_y_velocity                         
                            
         
