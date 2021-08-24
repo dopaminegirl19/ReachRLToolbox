@@ -53,7 +53,7 @@ class TargetReach():
             self.ff_bottom = bottom
         
     def reset(self, pos=(.5, 1)):
-        """Reset the environment to the starting position. The start position is (1, .5) on a 2D coordinate system). 
+        """Reset the environment to the starting position. The start position is (.5, 1) on a 2D coordinate system). 
         Params
         ======
         pos: 2-tuple, (x, y) starting coordinates of agent in workspace. 
@@ -69,7 +69,7 @@ class TargetReach():
         
         return self 
     
-    def dist_target(self, pos):
+    def dist2target(self, pos):
         """Calculates the euclidian/shortest distance of agent from target box. Used to calculate the error cost applied to \
         reward when discovery=False, i.e. the agent can "see" how far it is from the target box. 
         """
