@@ -1,4 +1,4 @@
-from ff_environment import ForceField
+from ff_environment import Workspace
 from agent import Agent
 from collections import deque
 import numpy as np
@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 
 
 
-env = ForceField()
+env = Workspace()
 env_info = env.reset()
 
 # size of each action
@@ -97,7 +97,8 @@ fig, axs = plt.subplots(1,2)
 axs[0].plot(range(len(scores)),scores)
 
 axs[1].plot(start_pos[0], start_pos[1], 'x',color='b')
-count = 0;
+count = 0
+axs[1].plot(trajectories[-1][0][0],trajectories[-1][0][1],'+',color='g',markersize=30)
 for pt in trajectories[-1]:
     axs[1].plot(pt[0],pt[1],'o',color='r')
     count+=1

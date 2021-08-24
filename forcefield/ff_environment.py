@@ -1,5 +1,5 @@
 import numpy as np
-
+import torch
 ## HYPERPARAMETERS
 ACTION_WEIGHT = 0.5 # effectuates momentum; 
 TIME_LIMIT = 50     # max time steps per trial 
@@ -80,8 +80,8 @@ class Workspace():
         y_pos = self.state[1] + self.state[3]*dt
         x_vel = (1-kv*dt) * self.state[2] + dt * self.state[4]
         y_vel = (1-kv*dt) * self.state[3] + dt * self.state[5]
-        x_force = (1-dt/tau) * self.state[4] + dt/tau * action[0]
-        y_force = (1-dt/tau) * self.state[5] + dt/tau * action[1]
+        x_force = (1-dt/tau) * self.state[4] + dt/tau * action[0] + np.random.normal(0., 0.01)# noise level similar to OFC
+        y_force = (1-dt/tau) * self.state[5] + dt/tau * action[1] + np.random.normal(0., 0.01)
         
         # Apply forcefield:
 
@@ -98,7 +98,7 @@ class Workspace():
         # Check if finished 
         if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
             if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]: # reached goal in y dimension
-                self.reward = 10 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
+                self.reward = 20 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
                 self.done = True
                 
         elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] \
