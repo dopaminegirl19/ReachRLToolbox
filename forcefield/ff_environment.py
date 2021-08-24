@@ -1,13 +1,9 @@
 import numpy as np
 import torch
-## HYPERPARAMETERS
-ACTION_WEIGHT = 0.5 # effectuates momentum; 
-TIME_LIMIT = 50     # max time steps per trial 
-COST_PARAM = 0.002 # penalty to action - HAD TO CHANGE THAT OTHERWISE NO MOVEMENT
 
-class Workspace():
+class DiscoverTarget():
     
-    def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), goal_br = (.9, -.8), space_padding = 5, max_len=TIME_LIMIT):
+    def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), goal_br = (.9, -.8), space_padding = 5, max_len=60):
         """Initialize forcefield environment.
         Params
         ======
@@ -15,6 +11,7 @@ class Workspace():
         goal_tl: tuple(x, y) coordinates of top left corner of goal box.
         goal_br: tuple(x, y) coordinates of bottom right corner of goal box.
         space_padding: float space from start_pos in each direction delineating allowed movement.
+        max_len: max number of timesteps per episode. 
         """
         
         self.action_size = 2 # (x_velocity, y_velocity)
@@ -44,6 +41,8 @@ class Workspace():
         Params
         ======
         force: (x, y) tuple of forces applied in each direction. 
+        top: upper limit in y-axis of applied forcefield
+        bottom: lower limit in y-axis of applied forcefield
         """
         # THIS FUNCTION IS NOT USED YET ?
         self.ff_force = force
@@ -54,6 +53,9 @@ class Workspace():
         
     def reset(self, pos=(.5, 1)):
         """Reset the environment to the starting position. The start position is (1, .5) on a 2D coordinate system). 
+        Params
+        ======
+        pos: 2-tuple, (x, y) starting coordinates of agent in workspace. 
         """
         
         self.pos = pos
@@ -62,12 +64,18 @@ class Workspace():
         self.reward = 0
         self.done = 0
         self.time = 0
+        self.target_counter = 0
         
         return self 
         
-    def step(self, action, act_weight = ACTION_WEIGHT, cost = COST_PARAM):
+    def step(self, action, cost = 0.002, stay_time=1):
         """Agent acts in the environment and gets the resulting next state and reward obtained.
         The system dynamics comes from Nashed et al. 2012
+        Params
+        ======
+        action = length 2, applied acceleration in (x, y) directions
+        cost = float, cost applied to acting (reflected in reward)
+        stay_time = int, number of timesteps agent is required to stay in target box to obtain reward. 1 = immediate reward.
         """
         
         # Add time (in time steps of 10 ms):
@@ -83,13 +91,10 @@ class Workspace():
         y_force = (1-dt/tau) * self.state[5] + dt/tau * action[1] + np.random.normal(0., 0.01)
         
         # Apply forcefield:
-
         if (self.state[1] + y_vel*dt) < self.ff_top and (self.state[1] + y_vel*dt) > self.ff_bottom:
             x_vel = x_vel + self.ff_force[0]*dt
             y_vel = y_vel + self.ff_force[1]*dt
 
-
-        
         # Update position and state
         self.pos = (x_pos, y_pos)
         self.state = np.array([x_pos, y_pos, x_vel, y_vel, x_force, y_force])
@@ -97,8 +102,10 @@ class Workspace():
         # Check if finished 
         if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
             if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]: # reached goal in y dimension
-                self.reward = 20 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
-                self.done = True
+                self.target_counter += 1
+                if self.target_counter >= stay_time:
+                    self.reward = 20 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
+                    self.done = True
                 
         elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] \
         or self.max_right <= self.pos[1]: # exited workspace
@@ -117,20 +124,5 @@ class Workspace():
     
 class MultiTarget(Workspace):
     pass
-                           
-def get_carried_action(old_action, action, act_weight = ACTION_WEIGHT):
-        """Get new action based on action from previous timestep. 
-        Carried action = (action_weight * old_action) + new_action 
-        Params
-        ======
-        old_action: list length 2 [old_x_velocity, old_y_velocity]
-        action: list length 2 [new_x_velocity, new_y_velocity]
-        act_weight: weight applied to old velocity 
-        """
-        # NOT USED ANYMORE - CAN BE REMOVED
-        new_x_velocity = old_action[0] * act_weight + action[0]
-        new_y_velocity = old_action[1] * act_weight + action[1]
-        
-        return new_x_velocity, new_y_velocity                         
                            
         
