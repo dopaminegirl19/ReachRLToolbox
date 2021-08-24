@@ -5,16 +5,19 @@ The origin branch repo should have this structure:
 ```
 README.md
 Roadmap.md
-ForceField.ipynb
+Baseline.ipynb
 BehaviorName02.ipynb
 BehaviorName03.ipynb
 ff_environment.py
 agents
 └───ddpg-32-16
-│   │   learned-ForceField.pth
-│   │   learned-BehaviorName02.pth
+│   │   learned-ForceField_actor.pth
+│   │   learned-ForceField_critic.pth
+│   │   learned-BehaviorName02_actor.pth
+│   │   learned-BehaviorName02_critic.pth
 └───ddpg-64-32
-│   │   learned-BehaviorName03.pth
+│   │   learned-BehaviorName03_actor.pth
+│   │   learned-BehaviorName03_critic.pth
 models
 │   1-layer
 │   2-layer
