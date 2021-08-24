@@ -3,39 +3,33 @@ import torch
 
 class TargetReach():
     
-    def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), goal_br = (.9, -.8), space_padding = 5, max_len=60, discover=False):
+    def __init__(self, start_pos = (.5, 1), goal = (.1, 0, .9, -.8), goal_tl = (.1, 0),  space_padding = 5, max_len=60, discover=False):
         """Initialize forcefield environment.
         Params
         ======
         start_pos: tuple (x, y) coordinates of starting position.
-        goal_tl: tuple(x, y) coordinates of top left corner of goal box.
-        goal_br: tuple(x, y) coordinates of bottom right corner of goal box.
+        goal: tuple(x1, x2, y1, y2) coordinates of goal box. note x1 < x2 and y1 < y2.
         space_padding: float space from start_pos in each direction delineating allowed movement.
         max_len: max number of timesteps per episode. 
+        discover: bool, indicates whether the agent can "see" the target box or whether it needs to be discovered. 
         """
+        
+        assert goal[0] < goal[1] and goal[2] < goal[3], \
+        "goal arg must satisfy goal[0] < goal[1] and goal[2] < goal[3]. Goal is (x1, x2, y1, y2) \
+        tuple with (x1, y1) the top left corner and (x2, y2) the bottom right corner of the goal box."
         
         self.action_size = 2 # (x_velocity, y_velocity)
         self.max_len = max_len
         self.discover = False 
         
-        # goal box
+        # start position, goal box, workspace bounds
         self.start_pos = start_pos 
-        self.goal_left = goal_tl[0]
-        self.goal_top = goal_tl[1]
-        self.goal_right = goal_br[0]
-        self.goal_bottom = goal_br[1]
-        
-        # workspace boundaries
-        self.max_top = start_pos[1] + space_padding
-        self.max_left = start_pos[0] - space_padding
-        self.max_bottom = start_pos[1] - space_padding
-        self.max_right = start_pos[0] + space_padding
-        
+        self.goal = goal
+        self.bounds = (goal[0] - space_padding, goal[1] + space_padding, goal[2] - space_padding, goal[3] + space_padding)
+
         # forcefields
         self.ff_force = (0, 0)
-        self.ff_top = self.max_top # it should cover the whole workspace
-        self.ff_bottom = self.max_bottom
-        
+        self.ff_lim = self.bounds[-2:] # y limits only 
         
     def add_forcefield(self, force, top=None, bottom=None):
         """Add a forcefield. Default is to apply forcefield from a limit in the y dimension.
@@ -45,12 +39,11 @@ class TargetReach():
         top: upper limit in y-axis of applied forcefield
         bottom: lower limit in y-axis of applied forcefield
         """
-        # THIS FUNCTION IS NOT USED YET ?
         self.ff_force = force
         if top is not None:
-            self.ff_top = top
+            self.ff_lim[0] = top
         if bottom is not None:
-            self.ff_bottom = bottom
+            self.ff_lim[1] = bottom
         
     def reset(self, pos=(.5, 1)):
         """Reset the environment to the starting position. The start position is (.5, 1) on a 2D coordinate system). 
@@ -99,7 +92,7 @@ class TargetReach():
         y_force = (1-dt/tau) * self.state[5] + dt/tau * action[1] + np.random.normal(0., 0.01)
         
         # Apply forcefield:
-        if (self.state[1] + y_vel*dt) < self.ff_top and (self.state[1] + y_vel*dt) > self.ff_bottom:
+        if (self.state[1] + y_vel*dt) < self.ff_lim[0] and (self.state[1] + y_vel*dt) > self.ff_lim[1]:
             x_vel = x_vel + self.ff_force[0]*dt
             y_vel = y_vel + self.ff_force[1]*dt
 
@@ -108,15 +101,15 @@ class TargetReach():
         self.state = np.array([x_pos, y_pos, x_vel, y_vel, x_force, y_force])
         
         # Check if finished 
-        if self.goal_left <= self.pos[0] and self.goal_right >= self.pos[0]:         # reached goal in x dimension 
-            if self.goal_top >= self.pos[1] and self.goal_bottom <= self.pos[1]: # reached goal in y dimension
+        if self.goal[0] <= self.pos[0] and self.goal[1] >= self.pos[0]:         # reached goal in x dimension 
+            if self.goal[2] >= self.pos[1] and self.goal[3] <= self.pos[1]: # reached goal in y dimension
                 self.target_counter += 1
                 if self.target_counter >= stay_time:
                     self.reward = 20 - np.linalg.norm(action, 2) * cost # INCREASE FOR SUCCESSFUL TRIALS
                     self.done = True
                 
-        elif self.max_top <= self.pos[0] or self.max_bottom >= self.pos[0] or self.max_left >= self.pos[1] \
-        or self.max_right <= self.pos[1]: # exited workspace
+        elif self.bounds[0] <= self.pos[0] or self.bounds[1] >= self.pos[0] or self.bounds[2] >= self.pos[1] \
+        or self.bounds[3] <= self.pos[1]: # exited workspace
             self.reward = -10 - np.linalg.norm(action, 2) * cost
             self.done = True 
                 
