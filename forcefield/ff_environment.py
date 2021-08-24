@@ -73,6 +73,7 @@ class TargetReach():
         """Calculates the euclidian/shortest distance of agent from target box. Used to calculate the error cost applied to \
         reward when discovery=False, i.e. the agent can "see" how far it is from the target box. 
         """
+        # note to antoine: you can refer to self.goal_left, self.goal_right, etc here and then return distance and use it in step
         pass 
         
     def step(self, action, cost = 0.002, stay_time=1):
