@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 
-class DiscoverTarget():
+class TargetReach():
     
-    def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), goal_br = (.9, -.8), space_padding = 5, max_len=60):
+    def __init__(self, start_pos = (.5, 1), goal_tl = (.1, 0), goal_br = (.9, -.8), space_padding = 5, max_len=60, discover=False):
         """Initialize forcefield environment.
         Params
         ======
@@ -16,6 +16,7 @@ class DiscoverTarget():
         
         self.action_size = 2 # (x_velocity, y_velocity)
         self.max_len = max_len
+        self.discover = False 
         
         # goal box
         self.start_pos = start_pos 
@@ -67,6 +68,12 @@ class DiscoverTarget():
         self.target_counter = 0
         
         return self 
+    
+    def dist_target(self, pos):
+        """Calculates the euclidian/shortest distance of agent from target box. Used to calculate the error cost applied to \
+        reward when discovery=False, i.e. the agent can "see" how far it is from the target box. 
+        """
+        pass 
         
     def step(self, action, cost = 0.002, stay_time=1):
         """Agent acts in the environment and gets the resulting next state and reward obtained.
